@@ -39,3 +39,33 @@ class HackathonLLM:
             
         else:
             raise NotImplementedError(f"Provider '{self.provider}' is not configured yet.")
+
+    def check_connection(self):
+        """Checks if the connection settings match our current local server configuration."""
+        if self.provider == "huggingface":
+            try:
+                response = self.client.chat_completion(
+                    model=Config.HF_MODEL,
+                    messages=[{"role": "user", "content": "Test"}],
+                    max_tokens=10
+                )
+                if response.status_code == 200:
+                    print("Connection to Hugging Face server is successful.")
+                else:
+                    print(f"Failed to connect to Hugging Face server. Status code: {response.status_code}")
+            except Exception as e:
+                print(f"Error connecting to Hugging Face server: {e}")
+
+    def run_diagnostic_test(self):
+        """Runs a quick internal diagnostic test."""
+        if self.provider == "huggingface":
+            try:
+                response = self.client.chat_completion(
+                    model=Config.HF_MODEL,
+                    messages=[{"role": "user", "content": "Diagnostic Test"}],
+                    max_tokens=50
+                )
+                print("Diagnostic Test Passed.")
+                print(f"Response: {response.choices[0].message.content}")
+            except Exception as e:
+                print(f"Diagnostic Test Failed: {e}")
