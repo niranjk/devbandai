@@ -1,6 +1,6 @@
 import time
 from src.core.state import ProjectStateManager
-from src.core.llm_client import LocalQwenClient
+from src.core.llm_client import HackathonLLM
 from src.core.pm_agent import ProductManagerAgent
 from src.core.developer_agent import DeveloperAgent
 from src.core.qa_agent import QAGerAgent
@@ -10,7 +10,7 @@ from src.core.state import HackathonState
 class DevBandOrchestrator:
     def __init__(self):
         self.state_manager = ProjectStateManager()
-        self.llm_client = LocalQwenClient()
+        self.llm_client = HackathonLLM()  # Updated to use HackathonLLM instead of LocalQwenClient
         
         # Instantiate our 3 Band agents
         self.pm_agent = ProductManagerAgent(self.state_manager, self.llm_client)
