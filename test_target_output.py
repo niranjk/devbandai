@@ -1,0 +1,1 @@
+HTTP error: 400 Client Error: Bad Request for url: http://localhost:11434/v1/chat/completions
