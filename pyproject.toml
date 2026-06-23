@@ -1,7 +1,7 @@
 [project]
-name = "hakathon-starter-kit"
+name = "devband-ai"
 version = "0.1.0"
-description = "Universal AI Hakathon Starter Kit Template"
+description = "Autonomous Multi-Agent Scrum Suite for Band of Agents Hakathon"
 readme = "README.md"
 requires-python = "==3.11.15"
 dependencies = [

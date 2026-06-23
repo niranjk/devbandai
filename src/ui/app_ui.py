@@ -1,44 +1,106 @@
-import os
-import sys
 import streamlit as st
+import time
+from pathlib import Path
 
-# Ensure the root package is visible to the UI runner
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from src.core.graph import hackathon_engine
-from src.core.state import HackathonState
-
-# Set page styling parameters
-st.set_page_config(page_title="AI Hackathon Starter Kit", page_icon="🏆", layout="wide")
-
-st.title("🏆 Stateful AI Hackathon Orchestrator")
-st.subheader("Powered by LangGraph, Python, uv & Hugging Face")
-st.markdown("---")
-
-# User Input Panel
-user_prompt = st.text_area(
-    "What autonomous application do you want to blueprint today?",
-    placeholder="e.g., Build an autonomous AI agent that tracks gas fees on Ethereum and alerts users via Discord.",
-    height=100
+# Set up page configurations
+st.set_page_config(
+    page_title="DevBand AI Dashboard",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-if st.button("🚀 Execute Map-Reduce Agentic Chain", type="primary"):
-    if not user_prompt.strip():
-        st.warning("Please enter a valid engineering goal first!")
+st.title("🤖 DevBand AI: Autonomous Multi-Agent Scrum Workspace")
+st.caption("Live Tracking Layer • Powered by Band Platform & Qwen 2.5 Coder Local Node")
+
+# Sidebar configurations for input controls
+st.sidebar.header("🚀 Hackathon Engine Control")
+raw_input_text = st.sidebar.text_area(
+    "Enter Feature Requirement Token:",
+    value="Create a file named fibonacci_tool.py containing a function named 'calculate_fibonacci' that accepts an integer N and returns a list containing the sequence. The function must raise a ValueError if N is negative.",
+    height=150
+)
+
+# Anchor paths for live parsing
+SCRATCHPAD_PATH = Path(".scratchpad.md").resolve()
+CODE_PATH = Path("fibonacci_tool.py").resolve()
+
+def parse_whiteboard():
+    """Reads and parses the live file state machine."""
+    if not SCRATCHPAD_PATH.exists():
+        return "INITIALIZATION", [], "Waiting for orchestrator ignition sequence..."
+        
+    try:
+        content = SCRATCHPAD_PATH.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        
+        phase = "INITIALIZATION"
+        tasks = []
+        logs_started = False
+        log_lines = []
+        
+        for line in lines:
+            if "- Active Phase:" in line:
+                phase = line.split("Active Phase:")[-1].strip()
+            elif "- [ ]" in line or "- [x]" in line:
+                tasks.append(line.replace("- [ ]", "⏳").replace("- [x]", "✅").strip())
+            elif "## Execution Logs" in line:
+                logs_started = True
+                continue
+            
+            if logs_started:
+                log_lines.append(line)
+                
+        return phase, tasks, "\n".join(log_lines).strip()
+    except Exception as e:
+        return "ERROR", [], f"Read block alert: {str(e)}"
+
+# Layout Grid Split
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    st.header("🔄 Real-Time Agent Orchestration")
+    
+    # Live Parse Call
+    phase, tasks, logs = parse_whiteboard()
+    
+    # Dynamic Status Indicators
+    if phase == "PLANNING":
+        st.info("📋 Active Node: PRODUCT MANAGER AGENT (Analyzing Requirements)")
+    elif phase == "DEVELOPING":
+        st.warning("💻 Active Node: DEVELOPER AGENT (Executing Aider Subprocess)")
+    elif phase == "TESTING":
+        st.error("🧪 Active Node: QA AUTOMATION ENGINEER (Running Unit Test Suites)")
+    elif phase == "COMPLETED":
+        st.success("🏆 Pipeline Target Cleared: Verified Production Artifact Available!")
     else:
-        with st.spinner("🧠 Orchestrating nodes... Calling Hugging Face Serverless APIs..."):
-            try:
-                # Fire up the backend engine we built in Phase 2
-                initial_state = HackathonState(input_query=user_prompt)
-                final_state = hackathon_engine.invoke(initial_state)
-                
-                # Render the final output beautifully using markdown structures
-                st.success("✨ Execution Complete!")
-                st.markdown("### 📊 Compiled Master Blueprint")
-                st.write(final_state.get("final_output", "No response generated."))
-                
-            except Exception as e:
-                st.error(f"❌ Critical Pipeline Failure: {str(e)}")
+        st.subheader(f"⚙️ Status: {phase}")
+
+    # Task Breakdown Display
+    st.subheader("📋 Active Sprint Backlog Tasks")
+    if tasks:
+        for t in tasks:
+            st.markdown(f"#### {t}")
+    else:
+        st.write("*No operational tasks inside active workspace window.*")
+
+    # Output Console Terminal Display
+    st.subheader("🖥️ Agent System Execution Logs")
+    st.code(logs if logs else "Awaiting task logs...", language="text")
+
+with col_right:
+    st.header("📄 Generated Code Workspace View")
+    
+    if CODE_PATH.exists():
+        try:
+            code_content = CODE_PATH.read_text(encoding="utf-8")
+            st.code(code_content, language="python")
+            st.caption(f"📍 Location: {CODE_PATH}")
+        except Exception:
+            st.info("Reading file buffer lock...")
+    else:
+        st.info("⏳ Code Asset View Empty. Awaiting Developer Agent code creation pass...")
+
+# Auto-refresh loop mechanism to keep the dashboard updating in real-time
+time.sleep(1)
+st.rerun()
